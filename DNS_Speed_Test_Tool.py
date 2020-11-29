@@ -58,7 +58,7 @@ def sortTime(str):
 
 def openIp():
     try:
-        file = open("/Nützliches/DNS Speed Test/DNS Servers.txt", "r").read()
+        file = open("DNS Servers.txt", "r").read()#Pfad zur Datei
         ip = file.splitlines()
         return ip
     except:
