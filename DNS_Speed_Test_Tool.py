@@ -1,8 +1,9 @@
 # _*_ coding: utf-8 _*_
 import subprocess
 import threading
-from _datetime import datetime
+from datetime import datetime
 import time
+import os
 
 class dnsTest(threading.Thread):
     def __init__(self, ip):
@@ -10,7 +11,7 @@ class dnsTest(threading.Thread):
         self.ip = ip
 
     def run(self):
-        global timeDns
+        global dns_time
         f = True
         i = 0
         lim.acquire()
@@ -33,12 +34,12 @@ class dnsTest(threading.Thread):
                 out = out.split("Zeit=")[1].split("TTL")[0]
                 out = out.strip(" ")
                 lock.acquire()
-                timeDns.append(out + ":" + self.ip)
+                dns_time.append(out + ":" + self.ip)
                 lock.release()
                 f = False
         lim.release()
 
-def ausgabe(diff, timeDns):
+def print_result(diff, timeDns):
     for i in timeDns:
         print("Zeit " + str(i[0]) + "ms für " + i[1])
         print("--------------------------------")
@@ -57,37 +58,35 @@ def sortTime(str):
     return buffer
 
 def openIp():
-    try:
-        file = open("DNS Servers.txt", "r").read()#Pfad zur Datei
-        ip = file.splitlines()
-        return ip
-    except:
-        print("File konte nicht geöffnet werden.")
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    with open(ROOT_DIR + "\DNS Server.txt") as file:
+        lines = file.read().splitlines()
+    return lines
 
 #Globale Variable
-timeDns = []
+dns_time = []
 
 ip = openIp()
 lock = threading.Lock()
-tstart = datetime.now()
+start_time = datetime.now()
 
-#Maximale anzahl Threds
-maxThred = 100
-lim = threading.Semaphore(value=maxThred)
+#Maximale Anzahl Threads
+maxThreads = 100
+lim = threading.Semaphore(value=maxThreads)
 threads = []
 
-# erzeugt Threds
+# erzeugt Threads
 for i in range(len(ip)):
     thread = dnsTest(ip[i])
     threads.append(thread)
-# Startet alle Threds in threads
+# Startet alle Threads in threads
 for thread in threads:
     thread.start()
 # Wartet auf beenden von allen Threads in threads
 for thread in threads:
     thread.join()
 
-timeDns = sortTime(timeDns)
-tend = datetime.now()
-diff = tend - tstart
-ausgabe(diff, timeDns)
+dns_time = sortTime(dns_time)
+end_time = datetime.now()
+diff_time = end_time - start_time
+print_result(diff_time, dns_time)
