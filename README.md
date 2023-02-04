@@ -6,7 +6,7 @@ Tool to automatically determine the fastest DNS server.
 
 ### Requirements:
 
-[Python]([Download Python | Python.org](https://www.python.org/downloads/))
+[Python](https://www.python.org/downloads/)
 
 ## Instructions:
 
